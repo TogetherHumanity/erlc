@@ -1,0 +1,6 @@
+discord.py>=2.3.2
+aiohttp>=3.8.1
+aiosqlite>=0.17.0
+fastapi>=0.110.0
+uvicorn>=0.26.0
+python-dotenv>=1.0.0

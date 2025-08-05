@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERLC Bot Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    header {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      padding: 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h2 {
+      margin-top: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #e0e0e0;
+    }
+    .status {
+      margin-top: 0.5rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ERLC Discord Bot Dashboard</h1>
+  </header>
+  <main>
+    <section>
+      <h2>Shift Logs</h2>
+      <p class="status" id="shift-status">Loading shifts…</p>
+      <table id="shift-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+          </tr>
+        </thead>
+        <tbody id="shift-body"></tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Your Characters</h2>
+      <p class="status" id="char-status">Loading characters…</p>
+      <table id="char-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody id="char-body"></tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Live Logs</h2>
+      <p>Join/leave and kill logs from ER:LC will appear in your Discord server.  Additional log endpoints can be implemented here.</p>
+    </section>
+    <section>
+      <h2>Priority Requests</h2>
+      <p>Use the `/request_priority` slash command in Discord to submit a priority call.  Requests will be forwarded to staff.</p>
+    </section>
+  </main>
+  <script>
+    // Replace this URL with the full URL of your Render backend
+    const API_BASE = 'https://your-render-service.onrender.com';
+
+    async function loadShifts() {
+      try {
+        const res = await fetch(`${API_BASE}/api/shifts`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        const tbody = document.getElementById('shift-body');
+        tbody.innerHTML = '';
+        data.forEach(shift => {
+          const tr = document.createElement('tr');
+          const user = document.createElement('td');
+          user.textContent = shift.discord_id;
+          const start = document.createElement('td');
+          start.textContent = new Date(shift.start_time).toLocaleString();
+          const end = document.createElement('td');
+          end.textContent = shift.end_time ? new Date(shift.end_time).toLocaleString() : '-';
+          tr.appendChild(user);
+          tr.appendChild(start);
+          tr.appendChild(end);
+          tbody.appendChild(tr);
+        });
+        document.getElementById('shift-status').style.display = 'none';
+        document.getElementById('shift-table').style.display = '';
+      } catch (err) {
+        document.getElementById('shift-status').textContent = 'Error loading shift logs.';
+      }
+    }
+
+    async function loadCharacters() {
+      try {
+        // Placeholder: you would create an endpoint to fetch characters associated
+        // with the currently authenticated user.  For demonstration we leave this
+        // section empty.  Replace with your own logic to authenticate and
+        // query `/api/characters` on your backend.
+        // The following code simulates an empty result.
+        const data = [];
+        const tbody = document.getElementById('char-body');
+        tbody.innerHTML = '';
+        data.forEach(char => {
+          const tr = document.createElement('tr');
+          const name = document.createElement('td');
+          name.textContent = char.name;
+          const role = document.createElement('td');
+          role.textContent = char.role;
+          tr.appendChild(name);
+          tr.appendChild(role);
+          tbody.appendChild(tr);
+        });
+        document.getElementById('char-status').style.display = 'none';
+        document.getElementById('char-table').style.display = '';
+      } catch (err) {
+        document.getElementById('char-status').textContent = 'Error loading characters.';
+      }
+    }
+
+    loadShifts();
+    loadCharacters();
+  </script>
+</body>
+</html>
